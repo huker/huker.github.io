@@ -1,0 +1,62 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>nginx学习记录 | 回头看看</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">nginx学习记录</h1><a id="logo" href="/.">回头看看</a><p class="description">code</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">nginx学习记录</h1><div class="post-meta">Jun 23, 2016</div><div class="post-content"><h3 id="什么是nginx"><a href="#什么是nginx" class="headerlink" title="什么是nginx"></a>什么是nginx</h3><ul>
+<li>最主要最基础的功能是发布程序</li>
+<li>nginx是高性能的HTTP和反向代理服务器，所以还可以实现负载均衡</li>
+<li>收发邮件</li>
+</ul>
+<a id="more"></a>
+<h3 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h3><p>当访问量多的时候，nginx可以把请求分给服务器集群，加快应答速度，避免服务器崩溃。</p>
+<h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><ul>
+<li>优点：高并发、部署简单、内存消耗少、成本低等</li>
+<li>缺点：rewrite功能不强，模块没有Apache多</li>
+</ul>
+<!--more-->
+<h3 id="centos中配置"><a href="#centos中配置" class="headerlink" title="centos中配置"></a>centos中配置</h3><p>1.安装支持，不然下面安装的时候会报错</p>
+<blockquote>
+<p>yum -y install pcre*</p>
+<p>yum -y install openssl*</p>
+</blockquote>
+<p>2.下载nginx</p>
+<blockquote>
+<p>wget <a href="http://nginx.org/download/nginx-1.7.8.tar.gz" target="_blank" rel="external">http://nginx.org/download/nginx-1.7.8.tar.gz</a></p>
+</blockquote>
+<p>3.解压</p>
+<blockquote>
+<p>tar -zxvf nginx-1.7.8.tar.gz</p>
+</blockquote>
+<p>4.编译安装</p>
+<blockquote>
+<p>cd nginx-1.7.8</p>
+<p>./configure –prefix=/usr/local/nginx-1.5.1 \ –with-http_ssl_module –with-http_spdy_module \ –with-http_stub_status_module –with-pcre</p>
+</blockquote>
+<p>5.安装</p>
+<blockquote>
+<p>make</p>
+<p>make install</p>
+</blockquote>
+<p>6.启动/重启/关闭</p>
+<blockquote>
+<p>/usr/local/nginx-1.5.1/sbin/nginx</p>
+<p>/usr/local/nginx-1.5.1/sbin/nginx -s reload</p>
+<p>/usr/local/nginx-1.5.1/sbin/nginx -s stop</p>
+</blockquote>
+<h3 id="nginx-conf"><a href="#nginx-conf" class="headerlink" title="nginx.conf"></a>nginx.conf</h3><p>工作衍生进程数，最合适的是内核数或两倍</p>
+<blockquote>
+<p>worker_processes 1</p>
+</blockquote>
+<p>设置最大连接数</p>
+<blockquote>
+<p>events {<br>    worker_connections 1024;<br>}</p>
+</blockquote>
+<p>http</p>
+<ul>
+<li>gzip on 开启gzip压缩，传输过程中压缩后的文件是原来的30%</li>
+<li>charset koi8-r 设置字符编码 </li>
+</ul>
+<p>基本格式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">worker_processes 1;</div><div class="line">events&#123;</div><div class="line">    worker_connections 1024;</div><div class="line">&#125;</div><div class="line">http&#123;</div><div class="line">    server&#123;...&#125;</div><div class="line">    server&#123;...&#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="反向代理解决跨域问题"><a href="#反向代理解决跨域问题" class="headerlink" title="反向代理解决跨域问题"></a>反向代理解决跨域问题</h3><ul>
+<li>服务器自己文件地址：<a href="http://114.215.95.111/link.html" target="_blank" rel="external">http://114.215.95.111/link.html</a></li>
+<li>访问地址：<a href="http://www.runoob.com/" target="_blank" rel="external">http://www.runoob.com/</a></li>
+</ul>
+<p>从我的html访问到nginx反向代理的api，先把<a href="http://114.215.95.111/api这么一个接口用来做反向代理的入口" target="_blank" rel="external">http://114.215.95.111/api这么一个接口用来做反向代理的入口</a>,</p>
+<p>修改nginx.conf：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">location /api &#123;</div><div class="line">       rewrite ^.+api/?(.*)$ /$1 break;</div><div class="line">       proxy_pass      http://www.runoob.com/;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+</div><div class="tags"><a href="/tags/nginx/">nginx</a></div><div class="post-nav"><a class="pre" href="/2016/09/03/nginx-build-mac/">mac安装本地nginx</a><a class="next" href="/2016/06/20/prototype/">js学习笔记-原型</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://huker.github.io"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/js/" style="font-size: 15px;">js</a> <a href="/tags/angular/" style="font-size: 15px;">angular</a> <a href="/tags/node/" style="font-size: 15px;">node</a> <a href="/tags/css/" style="font-size: 15px;">css</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/ionic/" style="font-size: 15px;">ionic</a> <a href="/tags/electron/" style="font-size: 15px;">electron</a> <a href="/tags/mocha/" style="font-size: 15px;">mocha</a> <a href="/tags/mongo/" style="font-size: 15px;">mongo</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/websocket/" style="font-size: 15px;">websocket</a> <a href="/tags/知识点/" style="font-size: 15px;">知识点</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/06/01/ionic2-QA/">ionic2开发路途坑&&知识点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/20/ng2-start/">ng2试水</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/04/angular-interceptor/">angular学习-http</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/24/angualr-form/">angualr表单验证</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/27/websocket/">websocket</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/09/js3rd/">高程3重读(ing...)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mongoose/">mongoose学习记录</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/14/working-solve/">实习期间碰到的一些知识点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/mocha/">使用mocha进行单元测试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/12/electron/">electron</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="https://github.com/huker" title="GitHub" target="_blank">GitHub</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">回头看看.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
