@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>webpack2019笔记 | 回头看看</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">webpack2019笔记</h1><a id="logo" href="/.">回头看看</a><p class="description">keep moving</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">webpack2019笔记</h1><div class="post-meta">Jan 20, 2019</div><div class="post-content"><p>webpack4的学习记录点，待知识点全部梳理一遍写一个webpack4的小册子</p>
+<a id="more"></a>
+<h3 id="零散"><a href="#零散" class="headerlink" title="零散"></a>零散</h3><ul>
+<li><p>命令里面  - - （笔记不好识别 中间没有空格的）是传参的意思 npm run build — —config webpack.config.dev.js 硬写的话要这么写 才是传参</p>
+</li>
+<li><p>loader 数组里从右到左执行</p>
+</li>
+</ul>
+<h3 id="babel"><a href="#babel" class="headerlink" title="babel"></a>babel</h3><p>把es5转化成es6 但是一些新的语法 比如es7的 还有一些高级语法 是不会被识别的</p>
+<p>所以要加入：</p>
+<p>代码运行时的包 </p>
+<p>插件 js babel里加的plugin 是开发环境下的依赖：@babel/plugin-transform-runtime </p>
+<p>上线的时候需要打出来的这个补丁 所以—save需要@babel/runtime </p>
+<p>es7 实例上的方法 @babel/polyfill</p>
+<h3 id="引入第三方模块（全局变量引入问题）"><a href="#引入第三方模块（全局变量引入问题）" class="headerlink" title="引入第三方模块（全局变量引入问题）"></a>引入第三方模块（全局变量引入问题）</h3><p>比如jquery</p>
+<p>1.expose-loader 暴露到window上（在引入的页面或者webpack的loader里面加内联loader都可以）</p>
+<p>2.这样在每个模块中注入$ 就可以直接用$不需要引入了</p>
+<p>webpack.ProvidePlugin({</p>
+<p>​    $:’jquery’</p>
+<p>})</p>
+<p>引入cdn 且external掉jq</p>
+<p>（运用的地方用了import进来 不用的话其实就不会被打包进来）</p>
+<p>用external可以让引入的包不被打包</p>
+<h3 id="图片的引入："><a href="#图片的引入：" class="headerlink" title="图片的引入："></a>图片的引入：</h3><p>1.js中 require 需要file-loader</p>
+<p>2。css中可以直接用 因为css-loader处理了这个事情 background：’url(….)’ css-loader会做转化 去吧括号里的路径require进来 从而引入</p>
+<p>伪代码：url(require(‘./sss.png’))</p>
+<p>3.html中引入（纯html和js  框架里可以引入的）</p>
+<p>使用html-withimg-loader 这个loader</p>
+<p>如果有的时候页面很多小图 不想要http请求 就用base64</p>
+<p>这时候可以使用url-loader</p>
+<p>rules里面test匹配图片 然后配置 图片大小小于“多少k”（options里配置limit） 的就用url-loader转化成base64 大于就用file-loader</p>
+<p>这时候就不会请求了 但是base64图片会比正常请求的图片大3分之1</p>
+<h3 id="publicPath："><a href="#publicPath：" class="headerlink" title="publicPath："></a>publicPath：</h3><p>如果把一些资源放在cdn上了的话，可以给output加publicPath，就会在所有路径前面加上地址（如果只要在图片上加的话 就在图片的loader上加publicpath啥的）</p>
+<p>MiniCssExtractPlugin用的时候要注意css内的图片寻址错误 所以也要加publicPath</p>
+<p>{</p>
+<p>​    loader: MiniCssExtractPlugin.loader,</p>
+<p>​    options: {</p>
+<p>​      // 复写 css 文件中资源路径</p>
+<p>​      // webpack3.x 配置在 extract-text-webpack-plugin 插件中</p>
+<p>​      // 因为 css 文件中的外链是相对与 css 的，</p>
+<p>​      // 我们抽离的 css 文件在可能会单独放在 css 文件夹内</p>
+<p>​      // 引用其他如 img/a.png 会寻址错误</p>
+<p>​      // 这种情况下所以单独需要配置 publicPath，复写其中资源的路径</p>
+<p>​      //</p>
+<p>​      publicPath: ‘../‘ </p>
+<p>​    }</p>
+<p>}</p>
+<h3 id="三个小插件："><a href="#三个小插件：" class="headerlink" title="三个小插件："></a>三个小插件：</h3><p>1.clean插件 删除文件夹</p>
+<p>2.copy插件 打包的时候把项目中的文件复制进dist</p>
+<p>3.webpack内置的插件bannerPlugin 可以加文字在打包的js文件前面 版权标识</p>
+<h3 id="前端解决跨域的三种方式（webpack）"><a href="#前端解决跨域的三种方式（webpack）" class="headerlink" title="前端解决跨域的三种方式（webpack）"></a>前端解决跨域的三种方式（webpack）</h3><p>1.代理：devserver配置proxy， rewrite接口地址</p>
+<p>2.纯前端mock数据 devserver加before方法 参数是express的app的钩子 可以把获取数据的方法写到里面去</p>
+<p>3.服务器端启动webpack 使得前后端启动在一个端口上 express加上中间件 启动webpack devserver（webpack的compile传进sever 在middlerware中启动）</p>
+<h3 id="resolve属性-解析"><a href="#resolve属性-解析" class="headerlink" title="resolve属性  (解析"></a>resolve属性  (解析</h3><p>1.modules 从哪里开始查依赖（避免一直往上查之类的 缩小范围）</p>
+<p>2.alias 别名</p>
+<p>   比如引入bootstrap 如果项目里直接import 会去找bootstrap.js（会让安装jquery才行） 所以引入别名的时候可以指定去找里面的某个文件 </p>
+<p>3.mainFields 入口 （默认是去读packjson里的main入口） 可以修改这边排优先级 优先到那个入口 </p>
+<p>4.extensions 读扩展名的优先级 引入东西的时候 如果不写扩展名 默认读js的 这边可以多加几个 js读不到的话就读css?json? 可以自定义</p>
+<h3 id="开发环境、生产环境配置"><a href="#开发环境、生产环境配置" class="headerlink" title="开发环境、生产环境配置"></a>开发环境、生产环境配置</h3><p>使用webpack.merge，两个配置文件</p>
+<p>merge默认用的smart</p>
+<h3 id="webpack优化点"><a href="#webpack优化点" class="headerlink" title="webpack优化点:"></a>webpack优化点:</h3><p>1.module中的noParse 不去解析某个包中的依赖库</p>
+<p>比如 noParse:/jquery/ 因为jq里面没有什么别的依赖 只要jq就行了 减少解析module使用的时间</p>
+<p>2.IgnorePlugin 可以指定某个东西不打包进去 比如moment打包进来的时候 里面有个local的语言包 我们不需要那么多的语言包 所以可以打包时忽略掉这个文件夹 （如果要引入别的语言包可以在项目内单独import里面的某个语言包然后设置语言）</p>
+</div><div class="tags"><a href="/tags/webpack/">webpack</a></div><div class="post-nav"><a class="next" href="/2018/02/10/d3notes/">d3 - 学习笔记</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://huker.github.io"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/css/" style="font-size: 15px;">css</a> <a href="/tags/angular/" style="font-size: 15px;">angular</a> <a href="/tags/d3-js/" style="font-size: 15px;">d3.js</a> <a href="/tags/node/" style="font-size: 15px;">node</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/js/" style="font-size: 15px;">js</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/electron/" style="font-size: 15px;">electron</a> <a href="/tags/mongo/" style="font-size: 15px;">mongo</a> <a href="/tags/mocha/" style="font-size: 15px;">mocha</a> <a href="/tags/ionic/" style="font-size: 15px;">ionic</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/webpack/" style="font-size: 15px;">webpack</a> <a href="/tags/知识点/" style="font-size: 15px;">知识点</a> <a href="/tags/websocket/" style="font-size: 15px;">websocket</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/01/20/webpack2019note/">webpack2019笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/10/d3notes/">d3 - 学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/29/hexoissues/">hexo遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/01/ionic2-QA/">ionic2+开发 持续更新中</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/20/ng2-start/">ng2试水</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/04/angular-interceptor/">angular学习-http</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/24/angualr-form/">angualr表单验证</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/27/websocket/">websocket</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/09/js3rd/">高程3重读(ing...)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mongoose/">mongoose学习记录</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/huker" title="GitHub" target="_blank">GitHub</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2019 <a href="/." rel="nofollow">回头看看.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
